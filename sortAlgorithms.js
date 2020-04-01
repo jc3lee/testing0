@@ -13,6 +13,8 @@ function bubbleSort(arr) {
     const n = arr.length;
     // Iteration of array till last before element 
     for (let i = 0; i < (n - 1); i++) {
+        //optional swapped tracker => more efficient
+        let hasSwapped = false;
         // Iteration of array till last before element 
         for (j = 0; j < (n - 1); j++) {
             if (arr[j] > arr[j + 1]) {
@@ -20,8 +22,10 @@ function bubbleSort(arr) {
                 let temp = arr[j];
                 arr[j] = arr[j + 1];
                 arr[j + 1] = temp;
+                hasSwapped = true;
             }
         }
+        if(!hasSwapped) break;
     }
     return arr;
 }

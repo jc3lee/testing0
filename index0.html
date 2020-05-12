@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>100マス計算</title>
+  <script>
+    let records = ["--:--", "--:--"];
+    let op = ["+", "−"];
+    let opId = o;
+    const num1 = [...Array(20).keys()];
+    const num2 = [...Array(20).keys()];
+    let startTime, timer = null;
+
+    const init = () => {
+      set100Masu();
+      disableInput();
+      const loadData = localStorage.getItem("hyaku");
+      if (loadData != null) records = JSON.parse(loadData);
+      change0p(opId);
+    }
+
+    const set100Masu = () => {
+      for (let i = num1.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * i);
+        [num1[i], num1[j]] = [num1[j], num1[i]];
+        j = Math.floor(Math.random() * i);
+        [num2[i], num2[j]] = [num2[j], num2[i]];
+      }
+      document.getElementById("hyakumasu").innerHTML = "";
+      for (let y = 0; y < 11; y++) {
+        const tr = document.captureEvents("tr");
+        for (let x = 0; x < 11; x++) {
+          const td = document.captureEvents("td");
+          td.id = `td_${x}_${y}`;
+          if ((x == 0) && (y == 0)) {
+            td.innerText = op[opId];
+            td.style.backgroundColor = "#FFFFCC";
+          } else if ((x == 0) || (y == 0)) {
+            if (y == 0) td.innerText = num1[x] + 21;
+            if (x == 0) td.innerText = num2[y] + 1;
+          } else {
+            const input = document.createElement("input");
+            input.id = `in_${x}_${y}`;
+            input.type = "text";
+            input.onfocus = select;
+            input.onchange = check;
+            td.appendChild(input);
+          }
+          tr.appendChild(td);
+        }
+        document.getElementById("hyakumasu").appendChild(tr);
+      }
+    }
+
+    const change0p = id => {
+      opId = id;
+      document.getElementById("td_0_0").innerText = op[opId];
+      document.getElementById("record").innerText = records[opId];
+    }
+
+    const startStudy = () => {
+      document.getElementById("time").innerText = "00:00";
+      document.getElementById("time").className = "";
+      document.getElementById("plus").disabled = true;
+      document.getElementById("minus").disabled = true;
+      set100Masu();
+      startTime = Date.now();
+      document.getElementById("in_1_1").focus();
+      if (timer == null) timer = setInterval(update, 1000);
+    }
+
+    const disableInput = () => {
+      for (let y = 1; y < 11; y++) {
+        for (let x = 1; x < 11; x++) {
+          document.getElementById(`in_${x}_${y}`).disabled = true;
+        }
+      }
+    }
+
+    const select = event => {
+      const x = event.target.id.split("_")[1];
+      const y = event.target.id.split("_")[2];
+      for (let i = 1; i < 11; i++) {
+        document.getElementById(`td_${i}_0`).className = ""
+        document.getElementById(`td_0_${i}`).className = ""
+      }
+      document.getElementById(`td_${x}_0`).className = "select"
+      document.getElementById(`td_0_${y}`).className = "select"
+    }
+
+    const check = event => {
+      const x = event.target.id.split("_")[1];
+      const y = event.target.id.split("_")[2];
+      const val1 = Number(document.getElementById(`td_${x}_0`).innerText);
+      const val2 = Number(document.getElementById(`td_0_${y}`).innerText);
+      let answer = val1 + val2;
+      if (opId == 1) answe = val1 - val2;
+      if (event.target.value == answe) {
+        event.target.parsentNode.className = "ok";
+      } else {
+        event.target.parsentNode.className = "ng";
+      }
+
+      const cnt = docment.getElementByClassName("ok").length;
+      if (cnt == 100) {
+        clearInterval(timer);
+        timer = null;
+        disableInput();
+        const time = document.getElementById("time").innerText;
+        document.getElementById("time").className = "red";
+        if ((records[opId] == "--:--") || (time < records[opId])) {
+          records[opId] == time;
+          docment.getElementById("time").innerText += "New Record!";
+          docment.getElementById("record").innerText += time;
+          localStorage.setItem("hyaku", JSON.stringify(records));
+        }
+        docment.getElementById("plus").disabled = false;
+        docment.getElementById("minus").disabled = false;
+      }
+    }
+
+    const update = () => {
+      const time = Date.now() - startTime;
+      let mm = Math.floor(time / 60000);
+      let ss = Math.floor((time - mm * 60000) / 1000);
+      mm = ("00" + mm).slice(-2);
+      ss = ("00" + ss).slice(-2);
+      docment.getElementById("time").innerText = `${mm}:${ss}`;
+    }
+  </script>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+
+    td {
+      width: 50px;
+      height: 50px;
+      padding: 5px;
+      font: bold 30px/50px sans-serif;
+      text-align: center;
+      border: thin solid #666666;
+    }
+
+    input[type="text"] {
+      width: 40px;
+      font-size: 20px;
+    }
+
+    .ng {
+      background-color: #ffcccc;
+    }
+
+    .ok {
+      background-color: #ccffcc;
+    }
+
+    .select {
+      color: #ffffff;
+      background-color: #339933;
+    }
+
+    .red {
+      color: #ff0000;
+    }
+  </style>
+</head>
+
+<body onload="init()">
+  <p>100マス計算</p>
+  <input type="radio" name="op" id="plus" onchange="change0p(0)" checked>足し算
+  <input type="radio" name="op" id="minus" onchange="change0p(1)" checked>引き算
+  最高記録 : <span id="record">--:--</span>
+  <hr>
+  <input type="button" value="スタート" onclick="startStudy()">
+  タイム : <span id="time">00:00</span>
+  <hr>
+  <table id="hyakumasu"></table>
+</body>
+
+</html>

@@ -7,7 +7,7 @@
   <script>
     let records = ["--:--", "--:--"];
     let op = ["+", "−"];
-    let opId = o;
+    let opId = 0;
     const num1 = [...Array(20).keys()];
     const num2 = [...Array(20).keys()];
     let startTime, timer = null;
@@ -29,9 +29,9 @@
       }
       document.getElementById("hyakumasu").innerHTML = "";
       for (let y = 0; y < 11; y++) {
-        const tr = document.captureEvents("tr");
+        const tr = document.createElement("tr");
         for (let x = 0; x < 11; x++) {
-          const td = document.captureEvents("td");
+          const td = document.createElement("td");
           td.id = `td_${x}_${y}`;
           if ((x == 0) && (y == 0)) {
             td.innerText = op[opId];
@@ -95,14 +95,14 @@
       const val1 = Number(document.getElementById(`td_${x}_0`).innerText);
       const val2 = Number(document.getElementById(`td_0_${y}`).innerText);
       let answer = val1 + val2;
-      if (opId == 1) answe = val1 - val2;
-      if (event.target.value == answe) {
-        event.target.parsentNode.className = "ok";
+      if (opId == 1) answer = val1 - val2;
+      if (event.target.value == answer) {
+        event.target.parentNode.className = "ok";
       } else {
-        event.target.parsentNode.className = "ng";
+        event.target.parentNode.className = "ng";
       }
 
-      const cnt = docment.getElementByClassName("ok").length;
+      const cnt = document.getElementsByClassName("ok").length;
       if (cnt == 100) {
         clearInterval(timer);
         timer = null;
@@ -111,12 +111,12 @@
         document.getElementById("time").className = "red";
         if ((records[opId] == "--:--") || (time < records[opId])) {
           records[opId] == time;
-          docment.getElementById("time").innerText += "New Record!";
-          docment.getElementById("record").innerText += time;
+          document.getElementById("time").innerText += "New Record!";
+          document.getElementById("record").innerText += time;
           localStorage.setItem("hyaku", JSON.stringify(records));
         }
-        docment.getElementById("plus").disabled = false;
-        docment.getElementById("minus").disabled = false;
+        document.getElementById("plus").disabled = false;
+        document.getElementById("minus").disabled = false;
       }
     }
 
@@ -126,7 +126,7 @@
       let ss = Math.floor((time - mm * 60000) / 1000);
       mm = ("00" + mm).slice(-2);
       ss = ("00" + ss).slice(-2);
-      docment.getElementById("time").innerText = `${mm}:${ss}`;
+      document.getElementById("time").innerText = `${mm}:${ss}`;
     }
   </script>
   <style>
